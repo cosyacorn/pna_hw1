@@ -16,16 +16,29 @@ Machine host;
 double boundary(int b, int k, Grid *g)
 {
   double q;
+	
 
   if (b==NORTH) 
     return 0.0;
     // { q = ((double) k) / ((double) g->nx); return q*q; }
-  if (b==SOUTH) 
-    { q = ((double) k) / ((double) g->nx); return 1.0 - cos(10 * M_PI * q);}
+	if (b==SOUTH) {
+		if (host.rank==0) {
+			return 1.0;
+		} else {
+			q = ((double) k) / ((double) g->nx);
+			return 1.0 - cos(10 * M_PI * q);
+			//return -k;
+		}
+	}
     // { q = ((double) k) / ((double) g->nx); return 1.0 - sin(10.5 * M_PI * q);}
-  if (b==EAST) 
-    return 0.0;
-    // { q = ((double) k) / ((double) g->ny); return sqrt(q); }
+	if (b==EAST) {
+		if( host.rank==7 ){
+			return 0.0;
+		} else {
+			q = ((double) k) / ((double) g->ny);
+			return sqrt(q);
+		}
+	}
   if (b==WEST) 
     return 0.0;
     // return 1.0;
