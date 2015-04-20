@@ -104,6 +104,12 @@ int main(int argc, char *argv[])
 
   write_field("grid.out",phi,g);
 
+	if(host.rank==5){
+		printf("**************\n");
+		printf("Value at A: %f\n",phi->value[g->nx_local/2][g->ny_local/2]);
+		printf("**************\n");
+}
+
   free_grid(g);
   free_field(phi);
   MPI_Finalize();

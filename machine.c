@@ -56,6 +56,12 @@ void init_machine(int argc, char *argv[])
   MPI_Comm_size(MPI_COMM_WORLD,&host.np);
   MPI_Comm_rank(MPI_COMM_WORLD,&host.rank);
 
+	if(host.np!=8) {
+		pprintf("\n\n***ERROR*** Must run on 8 processors!\n");
+		MPI_Abort(MPI_COMM_WORLD,1);
+
+	}
+
   //host.p_x = host.rank % host.p_nx;
   //host.p_y = host.rank / host.p_nx;
 
