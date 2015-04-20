@@ -15,20 +15,20 @@ Machine host;
 // Return Dirichlet data for boundary b (N,S,E,W) at location k
 double boundary(int b, int k, Grid *g)
 {
-  double q;
+	double q;
 	
 
- // if (b==NORTH) 
-    //return 0.0;
+	if (b==NORTH) 
+		return 0.0;
     // { q = ((double) k) / ((double) g->nx); return q*q; }
 	if (b==SOUTH) {
-		//if (host.rank==0) {
+		if (host.rank==0) {
 			return 1.0;
-		//} else {
-		//	q = ((double) k) / ((double) g->nx);
-		//	return 1.0 - cos(10 * M_PI * q);
-			//return -k;
-		//}
+		} else {
+			q = ((double) k) / ((double) g->nx);
+			return 1.0 - cos(10 * M_PI * q);
+			
+		}
 	}
     // { q = ((double) k) / ((double) g->nx); return 1.0 - sin(10.5 * M_PI * q);}
 	if (b==EAST) {
@@ -36,11 +36,11 @@ double boundary(int b, int k, Grid *g)
 			return 0.0;
 		} else {
 			q = ((double) k) / ((double) g->ny);
-			return sqrt(q);
+			return cos(k)*sqrt(q);
 		}
 	}
-  //if (b==WEST) 
-    //return 0.0;
+	if (b==WEST) 
+		return 0.0;
     // return 1.0;
 }
 
@@ -52,19 +52,20 @@ double update(Field* phi, int eo, Grid* g)
   double omega=1.9; // Over-relax
 
 // Update using GS iteration
-  for (x=0;x<g->nx_local;x++)
-  {
-    for (y=p;y<g->ny_local;y+=2)
-    {
-      diff = phi->value[x][y]; 
-      phi->value[x][y] = (1.0-omega)*phi->value[x][y] + omega * 0.25 * (
-        phi->value[x+1][y  ] + phi->value[x-1][y  ]
-      + phi->value[x  ][y+1] + phi->value[x  ][y-1]);
-      diff -= phi->value[x][y];
-      diff2_local += diff*diff;
-    }
-    p=1-p; 
-  }
+	for (x=0;x<g->nx_local;x++){
+		for (y=p;y<g->ny_local;y+=2){
+			diff = phi->value[x][y];
+			if(x==0 && host.neighbour[WEST]==-1) phi->value[x][y]=phi->value[1][y];
+			else if(y==0 && host.neighbour[SOUTH]==-1 && host.rank!=0) phi->value[x][y]=phi->value[x][1];
+			else if(x==g->nx_local-1 && host.neighbour[EAST]==-1 && host.rank!=7) phi->value[x][y]=phi->value[x-1][y];
+			else if(y==g->ny_local-1 && host.neighbour[NORTH]==-1) phi->value[x][y]=phi->value[x][y-1];
+			else
+			phi->value[x][y] = (1.0-omega)*phi->value[x][y] + omega * 0.25 * (phi->value[x+1][y] + phi->value[x-1][y] + phi->value[x][y+1] + phi->value[x][y-1]);
+			diff -= phi->value[x][y];
+			diff2_local += diff*diff;
+		}
+		p=1-p; 
+	}
   
   MPI_Allreduce(&diff2_local,&diff2_global,1,MPI_DOUBLE,MPI_SUM,MPI_COMM_WORLD);
   

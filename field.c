@@ -38,8 +38,8 @@ Field* init_field(Grid* g, double (*init)(int, int, Grid*))
 	// Load boundary data from initialiser function
 	if (f->boundary_type[NORTH] == BOUNDARY_PASSIVE)
 		for (x=0;x<g->nx_local;x++)
-			//f->value[x][g->ny_local] = init(NORTH,x+g->x_offset,g);
-			f->value[x][g->ny_local] = (4*f->value[x][g->ny_local-1];
+			f->value[x][g->ny_local] = init(NORTH,x+g->x_offset,g);
+			//f->value[x][g->ny_local] = (4*f->value[x][g->ny_local-1];
 	else 
 		for (x=0;x<g->nx_local;x++)
 			f->value[x][g->ny_local] = 0.0;
@@ -47,11 +47,11 @@ Field* init_field(Grid* g, double (*init)(int, int, Grid*))
 
 	if (f->boundary_type[SOUTH] == BOUNDARY_PASSIVE ){
 		for (x=0;x<g->nx_local;x++){
-			if(host.rank==0){
+			//if(host.rank==0){
 				f->value[x][-1         ] = init(SOUTH,x+g->x_offset,g);
-			} else {
-				f->value[x][-1] = (4*f->value[x][0]-f->value[x][1])/3;
-			}
+			//} else {
+				//f->value[x][-1] = (4*f->value[x][0]-f->value[x][1])/3;
+			//}
 		}
 	} else {
     		for (x=0;x<g->nx_local;x++)
@@ -60,8 +60,9 @@ Field* init_field(Grid* g, double (*init)(int, int, Grid*))
 
 	if (f->boundary_type[EAST ] == BOUNDARY_PASSIVE )
 		for (y=0;y<g->ny_local;y++){ 
-			if(host.rank==7) f->value[g->nx_local][y] = init(EAST ,y+g->y_offset,g);
-			else f->value[g->nx_local][y] = f->value[g->nx_local-1][y];
+			//if(host.rank==7)
+				 f->value[g->nx_local][y] = init(EAST ,y+g->y_offset,g);
+			//else f->value[g->nx_local][y] = f->value[g->nx_local-1][y];
 		}
 	else 
 		for (y=0;y<g->ny_local;y++)
@@ -70,8 +71,8 @@ Field* init_field(Grid* g, double (*init)(int, int, Grid*))
 
 	if (f->boundary_type[WEST ] == BOUNDARY_PASSIVE)
 		for (y=0;y<g->ny_local;y++)
-			// f->value[-1         ][y] = init(WEST ,y+g->y_offset,g);
-			f->value[-1][y] = (4*f->value[0][y]-f->value[1][y])/3;
+			 f->value[-1         ][y] = init(WEST ,y+g->y_offset,g);
+			//f->value[-1][y] = (4*f->value[0][y]-f->value[1][y])/3;
 	else 
 		for (y=0;y<g->ny_local;y++)
 			f->value[-1         ][y] = 0.0;
